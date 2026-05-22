@@ -1,16 +1,46 @@
-# React + Vite
+# ECS273 Project README
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This folder contains two parts, client and server.
 
-Currently, two official plugins are available:
+## Server
+For the server part, make sure you have the respective packages installed.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```
+pip install -r requirements.txt
+```
 
-## React Compiler
+Secondly, make sure you have already installed and started your mongoDB local server.
+For example, for mongodb managed with homebrew, run:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```
+brew services start mongodb-community
+```
 
-## Expanding the ESLint configuration
+Then, put your data into database with:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+```
+python import_data.py
+```
+
+Finally, start your FastAPI server by,
+
+```
+uvicorn main:app --reload --port 8000
+```
+
+## Client
+For the client part, ensure you have npm installed, if not:
+```angular2html
+npm install
+```
+
+Start up the server (React frontend) using: 
+```angular2html
+cd client
+npm run dev
+```
+
+### Notes
+database is named 'stock_joshmcginnis'
+
+### AI Usage Note:
