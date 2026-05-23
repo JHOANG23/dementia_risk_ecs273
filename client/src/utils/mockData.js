@@ -4,8 +4,8 @@ export function addMockRiskScores(cityData) {
 
     ...city,
 
-    risk_score:
-      city.risk_score ??
+    score:
+      city.score ??
       Math.random()
   }))
 }
