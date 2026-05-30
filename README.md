@@ -41,6 +41,13 @@ npm run dev
 ```
 
 ### Notes
-database is named 'stock_joshmcginnis'
+database is named 'dementia_risk'
+
+#### Server Files:
+- data_scheme.py specifies data structures used
+- import_data.py imports data from csv files
+- main.py is the FastAPI server
 
 ### AI Usage Note:
+- Used in data_scheme.py to revise our base structure
+- Used in import_data.py to help out with the specifics and for optimization
