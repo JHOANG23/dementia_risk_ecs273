@@ -51,3 +51,4 @@ database is named 'dementia_risk'
 ### AI Usage Note:
 - Used in data_scheme.py to revise our base structure
 - Used in import_data.py to help out with the specifics and for optimization
+- Heavier use in import_data.py for the aggregate data access functionality

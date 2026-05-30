@@ -20,6 +20,46 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/all_cities_data", response_model=CityDataList)
+async def get_all_cities_data():
+    city_coord_collection = db.get_collection("city_coordinates")
+
+    pipeline = [
+        {
+            "$lookup": {
+                "from": "city_factors",
+                "localField": "city_id",
+                "foreignField": "city_id",
+                "as": "factors_doc"
+            }
+        },
+        {
+            "$lookup": {
+                "from": "city_outcomes",
+                "localField": "city_id",
+                "foreignField": "city_id",
+                "as": "outcome_doc"
+            }
+        },
+        {"$match": {
+            "factors_doc": {"$ne": []}, # Filter out cities without factors
+            }
+        },
+        {"$project": {
+            "city_id": 1,
+            "city_name": 1,
+            "state_abbr": 1,
+            "state_name": 1,
+            "coordinates": 1,
+            "factors": {"$arrayElemAt": ["$factors_doc.factors", 0]},
+            "outcome_value": {"$arrayElemAt": ["$outcome_doc.outcome_value", 0]}
+            }
+        }
+    ]
+    results = await city_coord_collection.aggregate(pipeline).to_list(length=None)
+    return CityDataList(items=results)
+
+
 # Get coordinates for a single city
 @app.get("/city_coordinates", response_model=CityCoordinateUnit)
 async def get_city_coords(city_id: int):

@@ -54,3 +54,19 @@ class CityOutcomeUnit(BaseModel):
 
 class CityOutcomeList(BaseModel):
     items: list[CityOutcomeUnit]
+
+
+
+# Contains all relevant information
+class CityData(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city_id: int
+    city_name: str
+    state_abbr: str
+    state_name: str
+    coordinates: Coordinates
+    factors: Factors
+    outcome_value: Optional[float] = None
+
+class CityDataList(BaseModel):
+    items: list[CityData]

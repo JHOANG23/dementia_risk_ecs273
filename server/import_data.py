@@ -25,6 +25,7 @@ async def import_city_coords(df_raw):
                  "Geolocation"]].copy()
 
     df = df.drop_duplicates(subset="LocationID") # Note: This is county-level data, not city-level
+    df = df.dropna(subset=["LocationName", "Geolocation"]) # nan entries cause crashes on our frontend
 
     # We get the coordinates (latitude/longitude) for every county
     df["Geolocation"] = df["Geolocation"].str.strip()
