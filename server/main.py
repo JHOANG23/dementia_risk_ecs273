@@ -119,3 +119,15 @@ async def get_all_cities_outcomes():
     city_outcomes = await city_outcome_collection.find().to_list(length=None)
 
     return CityOutcomeList(items=city_outcomes)
+
+@app.get("/all_cities_zscores", response_model=CityZScoresList)
+async def get_all_cities_zscores():
+    city_zscore_collection = db.get_collection("city_zscores")
+    city_zscores = await city_zscore_collection.find().to_list(length=None)
+    return CityZScoresList(items=city_zscores)
+
+@app.get("/all_cities_knn", response_model=CityKNNList)
+async def get_all_cities_knn():
+    city_knn_collection = db.get_collection("city_knn")
+    city_knn = await city_knn_collection.find().to_list(length=None)
+    return CityKNNList(items=city_knn)

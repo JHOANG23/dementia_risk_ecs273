@@ -27,12 +27,12 @@ class CityCoordinateList(BaseModel):
 
 # Contains information about our six factors, associated with each city id
 class Factors(BaseModel):
-    obesity: float
-    diabetes: float
-    bphigh: float
-    csmoking: float
-    lpa: float
-    mhlth: float
+    OBESITY: float
+    DIABETES: float
+    BPHIGH: float
+    CSMOKING: float
+    LPA: float
+    MHLTH: float
 
 class CityFactorUnit(BaseModel):
     id: Optional[PyObjectId] = Field(alias="_id", default=None)
@@ -70,3 +70,25 @@ class CityData(BaseModel):
 
 class CityDataList(BaseModel):
     items: list[CityData]
+
+
+
+# Contains all city z-score info
+class CityZScores(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city_id: int
+    z_scores: dict[str, float]
+
+class CityZScoresList(BaseModel):
+    items: list[CityZScores]
+
+
+
+# Contains all city knn info
+class CityKNN(BaseModel):
+    id: Optional[PyObjectId] = Field(alias="_id", default=None)
+    city_id: int
+    knn: list[int]
+
+class CityKNNList(BaseModel):
+    items: list[CityKNN]

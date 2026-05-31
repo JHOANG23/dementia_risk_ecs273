@@ -52,3 +52,5 @@ database is named 'dementia_risk'
 - Used in data_scheme.py to revise our base structure
 - Used in import_data.py to help out with the specifics and for optimization
 - Heavier use in import_data.py for the aggregate data access functionality
+- Used to help with the general architecture of the project
+- Used in compute_stats.py for help with implementing the Moran's I and getting k-nearest neighbors
