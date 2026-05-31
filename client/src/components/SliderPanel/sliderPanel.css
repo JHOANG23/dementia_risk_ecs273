@@ -1,0 +1,60 @@
+.slider-panel-inner {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  overflow-x: auto;
+  width: 100%;
+}
+
+.slider-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 90px;
+}
+
+.slider-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.slider-input {
+  width: 80px;
+}
+
+.slider-value {
+  font-size: 11px;
+  font-family: monospace;
+  color: #666;
+  margin-top: 2px;
+}
+
+.slider-value.clickable {
+  cursor: pointer;
+  border-bottom: 1px dashed #999;
+  padding-bottom: 1px;
+}
+
+.slider-value.clickable:hover {
+  color: #333;
+  border-bottom-color: #333;
+}
+
+.slider-value-input {
+  width: 48px;
+  font-size: 11px;
+  font-family: monospace;
+  text-align: center;
+  border: 1px solid #999;
+  border-radius: 3px;
+  padding: 1px 3px;
+  margin-top: 2px;
+}
+
+.slider-value-input:focus {
+  outline: none;
+  border-color: #555;
+}

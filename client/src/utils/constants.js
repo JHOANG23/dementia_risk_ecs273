@@ -1,0 +1,10 @@
+export const FACTORS = ["OBESITY", "DIABETES", "BPHIGH", "CSMOKING", "LPA", "MHLTH"]
+
+export const DEFAULT_WEIGHTS = {
+  OBESITY: 1,
+  DIABETES: 1,
+  BPHIGH: 1,
+  CSMOKING: 1,
+  LPA: 1,
+  MHLTH: 1,
+}

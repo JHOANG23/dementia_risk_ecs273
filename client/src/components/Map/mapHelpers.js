@@ -26,8 +26,8 @@ export function drawCities(g, cityData, projection, tooltip, selectedCity, onSel
     .data(cityData)
     .enter()
     .append("circle")
-    .attr("cx", d => projection(d.location.coordinates)?.[0] ?? null)
-    .attr("cy", d => projection(d.location.coordinates)?.[1] ?? null)
+    .attr("cx", d => projection([d.coordinates.longitude, d.coordinates.latitude])?.[0] ?? null)
+    .attr("cy", d => projection([d.coordinates.longitude, d.coordinates.latitude])?.[1] ?? null)
     .attr("data-base-radius", d => radiusScale(d.score ?? 0))
     .attr("r", d => {
       const baseRadius = radiusScale(d.score ?? 0)

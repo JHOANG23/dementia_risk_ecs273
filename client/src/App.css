@@ -18,6 +18,7 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .slider-panel {
@@ -30,6 +31,14 @@ body {
   font-weight: bold;
   position: relative;
   z-index: 2;
+  flex-shrink: 0;
+}
+
+.maps-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .map-container {
@@ -40,4 +49,5 @@ body {
   overflow: hidden;
   position: relative;
   z-index: 1;
+  border-top: 1px solid #ddd;
 }

@@ -1,36 +1,23 @@
-import { addMockRiskScores } from "../utils/mockData"
-
-/*
-Expected backend city format:
-
-{
-  city_name: string,
-  state_name: string,
-
-  location: {
-    coordinates: [longitude, latitude]
-  },
-
-  risk_score?: number
-}
-*/
-
 const API_BASE_URL = "http://localhost:8000"
 
 export async function getCityData() {
-
-  const response = await fetch(`${API_BASE_URL}/city_coordinates`)
+  const response = await fetch(`${API_BASE_URL}/all_cities_data`)
 
   if (!response.ok) {
     throw new Error("Failed to fetch city data.")
   }
 
   const data = await response.json()
+  return data.items
+}
 
-  /*
-    TEMPORARY:
-    Add fake risk scores until backend provides them.
-  */
+export async function getCityZScores() {
+  const response = await fetch(`${API_BASE_URL}/all_cities_zscores`)
 
-  return addMockRiskScores(data.items)
+  if (!response.ok) {
+    throw new Error("Failed to fetch city z-scores.")
+  }
+
+  const data = await response.json()
+  return data.items
 }
