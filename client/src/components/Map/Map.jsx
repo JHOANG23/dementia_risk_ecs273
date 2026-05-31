@@ -41,9 +41,7 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
 
           g.selectAll("circle").attr("r", d => {
             const baseRadius = clampedRadius(d.score)
-            const isSelected =
-              selectedCity?.city_name === d.city_name &&
-              selectedCity?.state_name === d.state_name
+            const isSelected = selectedCity?.city_id === d.city_id
             return (isSelected ? baseRadius * 1.5 : baseRadius) / event.transform.k
           })
 
@@ -105,16 +103,12 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
 
     svg.selectAll("circle")
       .attr("r", d => {
-        const isSelected =
-          selectedCity?.city_name === d.city_name &&
-          selectedCity?.state_name === d.state_name
+        const isSelected = selectedCity?.city_id === d.city_id
         const baseRadius = clampedRadius(d.score)
         return (isSelected ? baseRadius * 1.5 : baseRadius) / currentTransform.k
       })
       .attr("fill", d => {
-        const isSelected =
-          selectedCity?.city_name === d.city_name &&
-          selectedCity?.state_name === d.state_name
+        const isSelected = selectedCity?.city_id === d.city_id
         return isSelected ? "#2563eb" : "red"
       })
   }, [selectedCity, cityData])

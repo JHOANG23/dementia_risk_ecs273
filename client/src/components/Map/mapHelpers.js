@@ -32,15 +32,11 @@ export function drawCities(g, cityData, projection, tooltip, selectedCity, onSel
     .attr("data-base-radius", d => clampedRadius(d.score))
     .attr("r", d => {
       const baseRadius = clampedRadius(d.score)
-      const isSelected =
-        selectedCity?.city_name === d.city_name &&
-        selectedCity?.state_name === d.state_name
+      const isSelected = selectedCity?.city_id === d.city_id
       return isSelected ? baseRadius * 1.5 : baseRadius
     })
     .attr("fill", d => {
-      const isSelected =
-        selectedCity?.city_name === d.city_name &&
-        selectedCity?.state_name === d.state_name
+      const isSelected = selectedCity?.city_id === d.city_id
       return isSelected ? "#2563eb" : CITY_POINT_COLOR
     })
     .attr("opacity", 0.75)
