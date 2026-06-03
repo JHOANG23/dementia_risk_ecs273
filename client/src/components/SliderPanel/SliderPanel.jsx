@@ -18,7 +18,7 @@ function SliderPanel({ weights, onWeightChange }) {
     const raw = editing[factor]
     const parsed = Number(raw)
     if (!isNaN(parsed)) {
-      const clamped = Math.max(0, Math.min(100, Math.round(parsed)))
+      const clamped = Math.max(0, Math.min(10, Math.round(parsed)))
       onWeightChange(factor, clamped)
     }
     setEditing(prev => {
@@ -47,7 +47,7 @@ function SliderPanel({ weights, onWeightChange }) {
           <input
             type="range"
             min={0}
-            max={100}
+            max={10}
             value={weights[factor]}
             onChange={e => onWeightChange(factor, Number(e.target.value))}
             className="slider-input"
@@ -58,7 +58,7 @@ function SliderPanel({ weights, onWeightChange }) {
               className="slider-value-input"
               value={editing[factor]}
               min={0}
-              max={100}
+              max={10}
               autoFocus
               onChange={e => handleInputChange(factor, e.target.value)}
               onBlur={() => handleInputBlur(factor)}

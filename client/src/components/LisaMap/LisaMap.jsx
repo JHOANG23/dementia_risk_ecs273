@@ -8,7 +8,7 @@ const CLUSTER_COLORS = {
   LL: "#2c7bb6",
   HL: "#fdae61",
   LH: "#abd9e9",
-  NS: "#a8d5a2",   // light green — was #cccccc
+  NS: "#a8d5a2",
 }
 
 const CLUSTER_LABELS = {
@@ -19,7 +19,7 @@ const CLUSTER_LABELS = {
   NS: "Not Significant",
 }
 
-function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
+function LisaMap({ selectedCities, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
   const containerRef = useRef()
   const svgRef = useRef()
   const tooltipRef = useRef()
@@ -28,6 +28,9 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
   const [lisaData, setLisaData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+
+  const primaryId = selectedCities?.[0]?.city_id
+  const secondaryId = selectedCities?.[1]?.city_id
 
   useEffect(() => {
     async function fetchLisa() {
@@ -73,7 +76,6 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
           g.attr("transform", event.transform)
           g.selectAll("circle").attr("r", 6 / event.transform.k)
           g.selectAll("path").attr("stroke-width", 1 / event.transform.k)
-
           if (!applyingExternalRef.current) {
             onZoomChange?.({ x: event.transform.x, y: event.transform.y, k: event.transform.k })
           }
@@ -82,7 +84,6 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
       zoomRef.current = zoom
       svg.call(zoom)
 
-      // Apply any existing shared transform on first render
       if (zoomTransform && (zoomTransform.k !== 1 || zoomTransform.x !== 0 || zoomTransform.y !== 0)) {
         applyingExternalRef.current = true
         svg.call(zoom.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
@@ -99,8 +100,8 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
           .enter()
           .append("path")
           .attr("d", path)
-          .attr("fill", "#e0e0e0")       // aligned with Map's STATE_FILL_COLOR
-          .attr("stroke", "#333")        // aligned with Map's STATE_BORDER_COLOR
+          .attr("fill", "#e0e0e0")
+          .attr("stroke", "#333")
           .attr("stroke-width", 1)
 
         g.append("g")
@@ -111,9 +112,13 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
           .attr("cx", d => projection([d.longitude, d.latitude])?.[0] ?? null)
           .attr("cy", d => projection([d.longitude, d.latitude])?.[1] ?? null)
           .attr("r", 6)
-          .attr("fill", d => CLUSTER_COLORS[d.lisa_cluster])
-          .attr("stroke", d => selectedCity?.city_id === d.city_id ? "#000" : "white")
-          .attr("stroke-width", d => selectedCity?.city_id === d.city_id ? 2 : 0.5)
+          .attr("fill", d => {
+            if (d.city_id === primaryId) return "#2563eb"
+            if (d.city_id === secondaryId) return "#f59e0b"
+            return CLUSTER_COLORS[d.lisa_cluster]
+          })
+          .attr("stroke", d => (d.city_id === primaryId || d.city_id === secondaryId) ? "#000" : "white")
+          .attr("stroke-width", d => (d.city_id === primaryId || d.city_id === secondaryId) ? 2 : 0.5)
           .attr("opacity", 0.85)
           .style("cursor", "pointer")
           .on("mouseover", (event, d) => {
@@ -133,7 +138,7 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
               .style("top", (event.offsetY - 28) + "px")
           })
           .on("mouseout", () => tooltip.style("opacity", 0))
-          .on("click", (event, d) => onSelectCity?.(d))
+          .on("click", (event, d) => onSelectCity?.(d, event.shiftKey))
 
       } catch (err) {
         console.error("LISA map render failed:", err)
@@ -141,20 +146,13 @@ function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZo
     }
 
     renderMap()
-  }, [lisaData, selectedCity])
+  }, [lisaData, selectedCities])
 
-  // Apply external zoom transform when it changes and this map is NOT the source
   useEffect(() => {
-    if (!zoomRef.current || !svgRef.current) return
-    if (isZoomSource) return
-    if (!zoomTransform) return
-
+    if (!zoomRef.current || !svgRef.current || isZoomSource || !zoomTransform) return
     const svg = d3.select(svgRef.current)
     applyingExternalRef.current = true
-    svg.call(
-      zoomRef.current.transform,
-      d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k)
-    )
+    svg.call(zoomRef.current.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
     applyingExternalRef.current = false
   }, [zoomTransform, isZoomSource])
 

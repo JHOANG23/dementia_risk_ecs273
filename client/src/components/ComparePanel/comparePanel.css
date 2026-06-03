@@ -1,0 +1,166 @@
+.compare-panel {
+  width: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease, border-left 0.3s ease;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.compare-panel.open {
+  width: 320px;
+  border-left: 1px solid #ddd;
+}
+
+.compare-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+  flex-shrink: 0;
+}
+
+.compare-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111;
+}
+
+.compare-close {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #666;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.compare-close:hover {
+  background: #f0f0f0;
+  color: #111;
+}
+
+.compare-cities-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 12px 0;
+  flex-shrink: 0;
+}
+
+.compare-city-card {
+  flex: 1;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+  position: relative;
+  min-width: 0;
+}
+
+.compare-badge {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 11px;
+  font-weight: bold;
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.compare-city-name {
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.compare-city-state {
+  font-size: 11px;
+  color: #777;
+  margin-bottom: 8px;
+}
+
+.compare-stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+.compare-stat-label {
+  color: #666;
+}
+
+.compare-stat-value {
+  font-weight: 700;
+  font-family: monospace;
+  color: #111;
+}
+
+.compare-vs {
+  font-size: 13px;
+  font-weight: bold;
+  color: #999;
+  flex-shrink: 0;
+}
+
+.compare-chart-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #333;
+  padding: 14px 16px 2px;
+  flex-shrink: 0;
+}
+
+.compare-chart-legend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 16px 8px;
+  font-size: 11px;
+  color: #444;
+  flex-shrink: 0;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.compare-chart {
+  flex: 1;
+  min-height: 0;
+  padding: 0 4px 8px;
+}
+
+.compare-chart svg {
+  width: 100%;
+  height: 100%;
+}
+
+.compare-empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  color: #aaa;
+  padding: 24px;
+  text-align: center;
+}

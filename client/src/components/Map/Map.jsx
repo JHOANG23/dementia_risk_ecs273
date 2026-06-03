@@ -3,13 +3,11 @@ import * as d3 from "d3"
 import { ZOOM_SCALE_EXTENT } from "./constants"
 import { drawStates, drawCities } from "./mapHelpers"
 
-function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
+function Map({ cityData, selectedCities, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
   const containerRef = useRef()
   const svgRef = useRef()
   const tooltipRef = useRef()
   const zoomRef = useRef(null)
-  // Track whether we are programmatically applying a transform
-  // so we don't fire onZoomChange in response to our own apply.
   const applyingExternalRef = useRef(false)
 
   useEffect(() => {
@@ -38,17 +36,12 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
         .scaleExtent(ZOOM_SCALE_EXTENT)
         .on("zoom", (event) => {
           g.attr("transform", event.transform)
-
           g.selectAll("circle").attr("r", d => {
-            const baseRadius = clampedRadius(d.score)
-            const isSelected = selectedCity?.city_id === d.city_id
-            return (isSelected ? baseRadius * 1.5 : baseRadius) / event.transform.k
+            const base = clampedRadius(d.score)
+            const isSelected = selectedCities?.some(c => c.city_id === d.city_id)
+            return (isSelected ? base * 1.5 : base) / event.transform.k
           })
-
           g.selectAll("path").attr("stroke-width", 1 / event.transform.k)
-
-          // Only propagate if this event came from real user interaction,
-          // not from us programmatically applying an external transform.
           if (!applyingExternalRef.current) {
             onZoomChange?.({ x: event.transform.x, y: event.transform.y, k: event.transform.k })
           }
@@ -57,7 +50,6 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
       zoomRef.current = zoom
       svg.call(zoom)
 
-      // Apply any existing shared transform on first render
       if (zoomTransform && (zoomTransform.k !== 1 || zoomTransform.x !== 0 || zoomTransform.y !== 0)) {
         applyingExternalRef.current = true
         svg.call(zoom.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
@@ -65,11 +57,9 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
       }
 
       try {
-        const usData = await d3.json(
-          "https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json"
-        )
+        const usData = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
         drawStates(g, usData, path)
-        drawCities(g, cityData, projection, tooltip, selectedCity, onSelectCity)
+        drawCities(g, cityData, projection, tooltip, selectedCities, onSelectCity)
       } catch (error) {
         console.error("Failed rendering map:", error)
       }
@@ -78,40 +68,35 @@ function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange
     renderMap()
   }, [cityData])
 
-  // Apply external zoom transform when it changes and this map is NOT the source
-  useEffect(() => {
-    if (!zoomRef.current || !svgRef.current) return
-    if (isZoomSource) return // we originated this change, don't re-apply
-    if (!zoomTransform) return
-
-    const svg = d3.select(svgRef.current)
-    applyingExternalRef.current = true
-    svg.call(
-      zoomRef.current.transform,
-      d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k)
-    )
-    applyingExternalRef.current = false
-  }, [zoomTransform, isZoomSource])
-
   useEffect(() => {
     const svg = d3.select(svgRef.current)
+    const primaryId = selectedCities?.[0]?.city_id
+    const secondaryId = selectedCities?.[1]?.city_id
     const maxScore = d3.max(cityData, d => d.score ?? 0)
     const radiusScale = d3.scaleSqrt().domain([0, maxScore]).range([2, 12])
     const clampedRadius = score => radiusScale(Math.max(0, score ?? 0))
-
     const currentTransform = d3.zoomTransform(svgRef.current)
 
     svg.selectAll("circle")
       .attr("r", d => {
-        const isSelected = selectedCity?.city_id === d.city_id
-        const baseRadius = clampedRadius(d.score)
-        return (isSelected ? baseRadius * 1.5 : baseRadius) / currentTransform.k
+        const base = clampedRadius(d.score)
+        const isSelected = d.city_id === primaryId || d.city_id === secondaryId
+        return (isSelected ? base * 1.5 : base) / currentTransform.k
       })
       .attr("fill", d => {
-        const isSelected = selectedCity?.city_id === d.city_id
-        return isSelected ? "#2563eb" : "red"
+        if (d.city_id === primaryId) return "#2563eb"
+        if (d.city_id === secondaryId) return "#f59e0b"
+        return "red"
       })
-  }, [selectedCity, cityData])
+  }, [selectedCities, cityData])
+
+  useEffect(() => {
+    if (!zoomRef.current || !svgRef.current || isZoomSource || !zoomTransform) return
+    const svg = d3.select(svgRef.current)
+    applyingExternalRef.current = true
+    svg.call(zoomRef.current.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
+    applyingExternalRef.current = false
+  }, [zoomTransform, isZoomSource])
 
   return (
     <div ref={containerRef} style={{ position: "relative", width: "100%", height: "100%" }}>
