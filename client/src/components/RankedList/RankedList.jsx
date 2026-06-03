@@ -6,13 +6,11 @@ function RankedList({ cityData, selectedCity, onSelectCity }) {
   const sortedCities = [...cityData]
     .sort((a, b) => b.score - a.score)
   const itemRefs = useRef({})
-  useEffect(() => {
 
+  useEffect(() => {
     if (!selectedCity) return
 
-    const key =
-      `${selectedCity.city_name}-${selectedCity.state_name}`
-
+    const key = selectedCity.city_id
     const selectedElement = itemRefs.current[key]
 
     if (selectedElement) {
@@ -21,11 +19,9 @@ function RankedList({ cityData, selectedCity, onSelectCity }) {
         block: "center"
       })
     }
-
   }, [selectedCity])
 
   return (
-
     <div className="ranked-list-container">
       <div className="ranked-list-header">
         City Rankings
@@ -33,17 +29,12 @@ function RankedList({ cityData, selectedCity, onSelectCity }) {
       <div className="ranked-list">
         {sortedCities.map((city, index) => (
           <div
-            key={`${city.city_name}-${city.state_name}`}
+            key={city.city_id}
             ref={(element) => {
-              const key =
-                `${city.city_name}-${city.state_name}`
-              itemRefs.current[key] = element
+              itemRefs.current[city.city_id] = element
             }}
             className={`ranked-list-item ${
-              selectedCity?.city_name === city.city_name &&
-              selectedCity?.state_name === city.state_name
-                ? "selected"
-                : ""
+              selectedCity?.city_id === city.city_id ? "selected" : ""
             }`}
             onClick={() => onSelectCity(city)}
           >

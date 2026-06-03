@@ -20,6 +20,7 @@ export function drawStates(g, usData, path) {
 export function drawCities(g, cityData, projection, tooltip, selectedCity, onSelectCity) {
   const maxScore = d3.max(cityData, d => d.score ?? 0)
   const radiusScale = d3.scaleSqrt().domain([0, maxScore]).range([2, 12])
+  const clampedRadius = score => radiusScale(Math.max(0, score ?? 0))
 
   g.append("g")
     .selectAll("circle")
@@ -28,18 +29,14 @@ export function drawCities(g, cityData, projection, tooltip, selectedCity, onSel
     .append("circle")
     .attr("cx", d => projection([d.coordinates.longitude, d.coordinates.latitude])?.[0] ?? null)
     .attr("cy", d => projection([d.coordinates.longitude, d.coordinates.latitude])?.[1] ?? null)
-    .attr("data-base-radius", d => radiusScale(d.score ?? 0))
+    .attr("data-base-radius", d => clampedRadius(d.score))
     .attr("r", d => {
-      const baseRadius = radiusScale(d.score ?? 0)
-      const isSelected =
-        selectedCity?.city_name === d.city_name &&
-        selectedCity?.state_name === d.state_name
+      const baseRadius = clampedRadius(d.score)
+      const isSelected = selectedCity?.city_id === d.city_id
       return isSelected ? baseRadius * 1.5 : baseRadius
     })
     .attr("fill", d => {
-      const isSelected =
-        selectedCity?.city_name === d.city_name &&
-        selectedCity?.state_name === d.state_name
+      const isSelected = selectedCity?.city_id === d.city_id
       return isSelected ? "#2563eb" : CITY_POINT_COLOR
     })
     .attr("opacity", 0.75)

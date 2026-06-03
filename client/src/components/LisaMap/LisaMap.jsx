@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from "react"
 import * as d3 from "d3"
 import { feature } from "topojson-client"
-import "./lisaMap.css"
+import "./LisaMap.css"
 
 const CLUSTER_COLORS = {
   HH: "#d7191c",
   LL: "#2c7bb6",
   HL: "#fdae61",
   LH: "#abd9e9",
-  NS: "#cccccc",
+  NS: "#a8d5a2",   // light green — was #cccccc
 }
 
 const CLUSTER_LABELS = {
@@ -19,10 +19,12 @@ const CLUSTER_LABELS = {
   NS: "Not Significant",
 }
 
-function LisaMap({ selectedCity, onSelectCity }) {
+function LisaMap({ selectedCity, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
   const containerRef = useRef()
   const svgRef = useRef()
   const tooltipRef = useRef()
+  const zoomRef = useRef(null)
+  const applyingExternalRef = useRef(false)
   const [lisaData, setLisaData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -71,9 +73,21 @@ function LisaMap({ selectedCity, onSelectCity }) {
           g.attr("transform", event.transform)
           g.selectAll("circle").attr("r", 6 / event.transform.k)
           g.selectAll("path").attr("stroke-width", 1 / event.transform.k)
+
+          if (!applyingExternalRef.current) {
+            onZoomChange?.({ x: event.transform.x, y: event.transform.y, k: event.transform.k })
+          }
         })
 
+      zoomRef.current = zoom
       svg.call(zoom)
+
+      // Apply any existing shared transform on first render
+      if (zoomTransform && (zoomTransform.k !== 1 || zoomTransform.x !== 0 || zoomTransform.y !== 0)) {
+        applyingExternalRef.current = true
+        svg.call(zoom.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
+        applyingExternalRef.current = false
+      }
 
       try {
         const usData = await d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json")
@@ -85,8 +99,8 @@ function LisaMap({ selectedCity, onSelectCity }) {
           .enter()
           .append("path")
           .attr("d", path)
-          .attr("fill", "#f0f0f0")
-          .attr("stroke", "#ccc")
+          .attr("fill", "#e0e0e0")       // aligned with Map's STATE_FILL_COLOR
+          .attr("stroke", "#333")        // aligned with Map's STATE_BORDER_COLOR
           .attr("stroke-width", 1)
 
         g.append("g")
@@ -128,6 +142,21 @@ function LisaMap({ selectedCity, onSelectCity }) {
 
     renderMap()
   }, [lisaData, selectedCity])
+
+  // Apply external zoom transform when it changes and this map is NOT the source
+  useEffect(() => {
+    if (!zoomRef.current || !svgRef.current) return
+    if (isZoomSource) return
+    if (!zoomTransform) return
+
+    const svg = d3.select(svgRef.current)
+    applyingExternalRef.current = true
+    svg.call(
+      zoomRef.current.transform,
+      d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k)
+    )
+    applyingExternalRef.current = false
+  }, [zoomTransform, isZoomSource])
 
   if (loading) return <div className="lisa-status">Computing Moran's I...</div>
   if (error) return <div className="lisa-status lisa-error">{error}</div>

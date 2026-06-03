@@ -179,6 +179,16 @@ async def import_data():
 
         # Get top N city IDs by population
         pop_df = df_raw[["LocationID", "TotalPopulation"]].drop_duplicates(subset="LocationID")
+        pop_df["TotalPopulation"] = (
+            pop_df["TotalPopulation"]
+            .astype(str)
+            .str.replace(",", "", regex=False)
+        )
+
+        pop_df["TotalPopulation"] = pd.to_numeric(
+            pop_df["TotalPopulation"],
+            errors="coerce"
+        )
         pop_df = pop_df.dropna(subset=["TotalPopulation"])
         top_ids = set(pop_df.nlargest(TOP_N_CITIES, "TotalPopulation")["LocationID"])
         print(f"    -> Selected top {TOP_N_CITIES} cities by population.")

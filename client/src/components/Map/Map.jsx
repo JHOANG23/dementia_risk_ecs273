@@ -3,10 +3,14 @@ import * as d3 from "d3"
 import { ZOOM_SCALE_EXTENT } from "./constants"
 import { drawStates, drawCities } from "./mapHelpers"
 
-function Map({ cityData, selectedCity, onSelectCity }) {
+function Map({ cityData, selectedCity, onSelectCity, zoomTransform, onZoomChange, isZoomSource }) {
   const containerRef = useRef()
   const svgRef = useRef()
   const tooltipRef = useRef()
+  const zoomRef = useRef(null)
+  // Track whether we are programmatically applying a transform
+  // so we don't fire onZoomChange in response to our own apply.
+  const applyingExternalRef = useRef(false)
 
   useEffect(() => {
     async function renderMap() {
@@ -28,6 +32,7 @@ function Map({ cityData, selectedCity, onSelectCity }) {
 
       const maxScore = d3.max(cityData, d => d.score ?? 0)
       const radiusScale = d3.scaleSqrt().domain([0, maxScore]).range([2, 12])
+      const clampedRadius = score => radiusScale(Math.max(0, score ?? 0))
 
       const zoom = d3.zoom()
         .scaleExtent(ZOOM_SCALE_EXTENT)
@@ -35,17 +40,29 @@ function Map({ cityData, selectedCity, onSelectCity }) {
           g.attr("transform", event.transform)
 
           g.selectAll("circle").attr("r", d => {
-            const baseRadius = radiusScale(d.score ?? 0)
-            const isSelected =
-              selectedCity?.city_name === d.city_name &&
-              selectedCity?.state_name === d.state_name
+            const baseRadius = clampedRadius(d.score)
+            const isSelected = selectedCity?.city_id === d.city_id
             return (isSelected ? baseRadius * 1.5 : baseRadius) / event.transform.k
           })
 
           g.selectAll("path").attr("stroke-width", 1 / event.transform.k)
+
+          // Only propagate if this event came from real user interaction,
+          // not from us programmatically applying an external transform.
+          if (!applyingExternalRef.current) {
+            onZoomChange?.({ x: event.transform.x, y: event.transform.y, k: event.transform.k })
+          }
         })
 
+      zoomRef.current = zoom
       svg.call(zoom)
+
+      // Apply any existing shared transform on first render
+      if (zoomTransform && (zoomTransform.k !== 1 || zoomTransform.x !== 0 || zoomTransform.y !== 0)) {
+        applyingExternalRef.current = true
+        svg.call(zoom.transform, d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k))
+        applyingExternalRef.current = false
+      }
 
       try {
         const usData = await d3.json(
@@ -61,26 +78,37 @@ function Map({ cityData, selectedCity, onSelectCity }) {
     renderMap()
   }, [cityData])
 
+  // Apply external zoom transform when it changes and this map is NOT the source
+  useEffect(() => {
+    if (!zoomRef.current || !svgRef.current) return
+    if (isZoomSource) return // we originated this change, don't re-apply
+    if (!zoomTransform) return
+
+    const svg = d3.select(svgRef.current)
+    applyingExternalRef.current = true
+    svg.call(
+      zoomRef.current.transform,
+      d3.zoomIdentity.translate(zoomTransform.x, zoomTransform.y).scale(zoomTransform.k)
+    )
+    applyingExternalRef.current = false
+  }, [zoomTransform, isZoomSource])
+
   useEffect(() => {
     const svg = d3.select(svgRef.current)
     const maxScore = d3.max(cityData, d => d.score ?? 0)
     const radiusScale = d3.scaleSqrt().domain([0, maxScore]).range([2, 12])
+    const clampedRadius = score => radiusScale(Math.max(0, score ?? 0))
 
-    // Get the current zoom scale so radii stay consistent
     const currentTransform = d3.zoomTransform(svgRef.current)
 
     svg.selectAll("circle")
       .attr("r", d => {
-        const isSelected =
-          selectedCity?.city_name === d.city_name &&
-          selectedCity?.state_name === d.state_name
-        const baseRadius = radiusScale(d.score ?? 0)
+        const isSelected = selectedCity?.city_id === d.city_id
+        const baseRadius = clampedRadius(d.score)
         return (isSelected ? baseRadius * 1.5 : baseRadius) / currentTransform.k
       })
       .attr("fill", d => {
-        const isSelected =
-          selectedCity?.city_name === d.city_name &&
-          selectedCity?.state_name === d.state_name
+        const isSelected = selectedCity?.city_id === d.city_id
         return isSelected ? "#2563eb" : "red"
       })
   }, [selectedCity, cityData])

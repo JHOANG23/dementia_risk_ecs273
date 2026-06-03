@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react"
-import Map from "./components/Map/Map"
 import RankedList from "./components/RankedList/RankedList"
 import SliderPanel from "./components/SliderPanel/SliderPanel"
-import LisaMap from "./components/LisaMap/LisaMap"
+import MapPanel from "./components/MapPanel/MapPanel"
 import { getCityData, getCityZScores } from "./services/api"
 import { computeScores } from "./utils/scoring"
 import { DEFAULT_WEIGHTS } from "./utils/constants"
@@ -69,15 +68,8 @@ function App() {
 
         <div className="maps-column">
           <div className="map-container">
-            <Map
+            <MapPanel
               cityData={scoredCities}
-              selectedCity={selectedCity}
-              onSelectCity={setSelectedCity}
-            />
-          </div>
-
-          <div className="map-container">
-            <LisaMap
               selectedCity={selectedCity}
               onSelectCity={setSelectedCity}
             />
