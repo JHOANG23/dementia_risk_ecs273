@@ -25,3 +25,4 @@ venv
 *.sw?
 
 server/data
+server/evaluate.py
