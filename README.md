@@ -12,6 +12,9 @@ Shift-clicking any city on the map or ranked list selects it. Shift-clicking a s
 
 The backend uses Python, FastAPI, and MongoDB. The frontend uses React and D3.js. All composite scoring runs client-side so slider updates trigger immediate recompute without a server round trip. Spatial autocorrelation is computed server-side using a custom numpy implementation of Moran's I with precomputed KNN spatial weights.
 
+## Demo/Setup
+https://youtu.be/1r9fVFfLW0c
+
 ## Installation
 
 This step assumes Python, Node.js, npm, and MongoDB are installed on your system.
